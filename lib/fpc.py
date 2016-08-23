@@ -67,7 +67,7 @@ def settings(request):
         elif request == "po_user":
             return config['Pushover']['user']
     else:
-        sys.exit("Move {}/txt/settings.ini into {}/".format(DIR_NAME, DIR_NAME))
+        sys.exit("Move {}/txt/settings.ini.skel to {}/settings.ini".format(DIR_NAME, DIR_NAME))
 
 
 def get_session(option):

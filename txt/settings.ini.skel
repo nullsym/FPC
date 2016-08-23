@@ -1,0 +1,12 @@
+[Auth]
+user_name =
+password =
+account_number =
+zip_code =
+
+[Misc]
+threshold = 1.5
+
+[Pushover]
+token =
+user =

@@ -1,0 +1,30 @@
+#!/usr/bin/env python
+
+# Description: We receive the week number and we print data
+# from all the week.
+
+import time
+import sys, os
+import sqlite3
+
+DIR_NAME = os.path.split(os.path.abspath(sys.argv[0]))[0]
+YEAR = time.strftime("%Y")
+DB_NAME = DIR_NAME + "/" + YEAR + ".db"
+
+def db_print(week):
+    conn = sqlite3.connect(DB_NAME)
+    c = conn.cursor()
+    week_day = week + "-%"
+
+    c.execute('DELETE FROM FPL WHERE date LIKE (?)', (week_day,))
+    c.execute('DELETE FROM SUMMARY WHERE date LIKE (?)', (week_day,))
+
+    conn.commit()
+    conn.close()
+
+########
+# Main #
+########
+if __name__ == '__main__':
+    week = input("Enter the week number you wish to delete (E.g. 32): ")
+    db_print(week)

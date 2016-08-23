@@ -1,0 +1,113 @@
+#!/usr/bin/env python
+
+# For the FPC code
+from lib import fpc
+# For yearly_overview()
+from lxml import html
+# For monthly_overview()
+import json
+# For notifications
+import os, subprocess
+
+####################
+# Helper functions #
+####################
+def money_r():
+    file_name = fpc.DIR_NAME + "/txt/data.txt"
+
+    if not fpc.file_exists(file_name, True):
+        # Create and initialize the file
+        money_w(0.0)
+        return float(0)
+    else:
+        with open(file_name, 'r') as f:
+            money = f.readline()
+
+        return float(money)
+
+def money_w(money):
+    file_name = fpc.DIR_NAME + "/txt/data.txt"
+    with open(file_name, 'w') as f:
+        f.write(str(money))
+
+def money_delta(money):
+    # Remove the dollar sign to convert the str to float
+    money1 = float(money[1:])
+    money2 = money_r()
+
+    # Couldn't fetch new data
+    if money1 == money2:
+        pass
+    # Could fetch new data
+    elif money1 > money2:
+        money_delta = round((money1 - money2), 2)
+        money_w(money1)
+        return(str(money_delta))
+    # New billing cycle
+    elif money1 < money2:
+        money_w(money1)
+
+    return None
+
+#############
+# Functions #
+#############
+def yearly_overview():
+    result = fpc.get_session("yearly")
+    result = result.json()
+    for i in range(0, len(result['data'])):
+        print("{} kWh used on {} {}. ${:6} ({} °F)".format(str(result['data'][i]['kwhUsed']),
+            result['data'][i]['billingMonth'],
+            result['data'][i]['billingYear'],
+            str(result['data'][i]['billingCharge']),
+            str(int(result['data'][i]['temperature']))))
+
+
+def monthly_overview():
+    result = fpc.get_session("monthly")
+    tree = html.fromstring(result.content)
+
+    try:
+        money = tree.xpath("//div[@class='bpbusagebgnd']/div[@class='bpbusagedollartxt']")
+        money_delta_str = money_delta(str(money[1].text.strip()))
+
+        dates_bill_to_date = tree.xpath("//div/div[@class='bpsusagesmlmnthtxt']")
+        dates_projected_bill = tree.xpath("//div/div[@class='bpsusagesmldatetxt']")
+
+        notification_str = "Bill to Date:   " + money[1].text.strip() + " "
+        if money_delta_str:
+            notification_str += "($" + money_delta_str +  " delta)"
+        notification_str += "\nProjected Bill: " + money[2].text.strip()
+        notification_str += "\n\nBill to Date: " + dates_bill_to_date[0].text.strip()
+        notification_str += "\nBill Cycle: " + dates_projected_bill[0].text.strip()
+
+        thres = float(fpc.settings("threshold"))
+        if thres >= 0:
+            if money_delta_str and float(money_delta_str) > thres:
+                for root, dirs, files in os.walk(fpc.DIR_NAME + "/notify/"):
+                    for fname in files:
+                        subprocess.run([root+fname, notification_str])
+            else:
+                print("Money delta did not exceed our threshold [" + str(thres) + "]")
+        print(notification_str)
+
+    except IndexError:
+        print("Probably a problem with your cookies!")
+
+########
+# Main #
+########
+if __name__ == '__main__':
+    import argparse
+    parser = argparse.ArgumentParser(description="Display information from your FPL account")
+
+    parser.add_argument("-y", "--yearly", action="store_true",
+            help="Gives you a monthly overview of the last 12 months")
+    parser.add_argument("-m", "--monthly", action="store_true",
+            help="Gives you an overview of your current billing cycle")
+
+    args = parser.parse_args()
+    if args.yearly:
+        yearly_overview()
+    if args.monthly:
+        monthly_overview()

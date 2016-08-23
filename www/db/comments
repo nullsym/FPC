@@ -1,0 +1,74 @@
+#!/usr/bin/env python
+
+import sys, os
+import sqlite3
+import datetime, time
+
+DIR_NAME = os.path.split(os.path.abspath(sys.argv[0]))[0]
+
+def db_comment_add(date, comment):
+    year = date.strftime("%Y")
+    week_num = date.strftime("%U")
+    week_day = date.strftime("%w") # Change to %u (starts with monday)
+
+    db_name = DIR_NAME + "/" + str(year) + ".db"
+    week_num_and_day = week_num + "-" + week_day
+
+    # Format of the SUMMARY table:
+    # ('32-5', 0.24, 0.0, None)
+    conn = sqlite3.connect(db_name)
+    c = conn.cursor()
+
+    # Check if an entry for the day exists
+    c.execute('SELECT rowid FROM SUMMARY WHERE date = (?)', (week_num_and_day,))
+    if c.fetchone() is None:
+        sys.exit("[ERROR] No entry found for this day on the DB")
+    else:
+        c.execute('UPDATE SUMMARY SET comments = (?) WHERE date = (?)', (comment, week_num_and_day))
+
+    conn.commit()
+    conn.close()
+
+########
+# Main #
+########
+if __name__ == '__main__':
+    import argparse
+
+    parser = argparse.ArgumentParser(description="Add comments to the database")
+    group = parser.add_mutually_exclusive_group()
+
+    group.add_argument("-w", "--week", action="store_true",
+            help="Use the weekNumber-weekDay yyyy format")
+    group.add_argument("-d", "--date", action="store_true",
+            help="Use the dd/mm/yyyy format")
+    # group.add_argument("--delete", action="store_true",
+    #         help="Delete a comment")
+    parser.add_argument("-r", "--range", action="store_true",
+            help="Mode for adding comments to multiple days")
+
+
+    args = parser.parse_args()
+    if args.week:
+        if args.range:
+            pass
+        else:
+            print("The date is: " + time.strftime("%U-%w %Y"))
+
+    elif args.date:
+        if args.range:
+            pass
+        else:
+            print("The date is: " + time.strftime("%d/%m/%Y"))
+            date = input("\nEnter the date: ")
+            comment = input("Enter the comment: ")
+            try:
+                date = datetime.datetime.strptime(date, "%d/%m/%Y")
+                if comment is not "":
+                    db_comment_add(date, comment)
+                else:
+                    sys.exit("[ERROR] The comment was empty")
+            except ValueError:
+                sys.exit("[ERROR] The format for the date was wrong")
+    else:
+        print(parser.parse_args(['--help']))

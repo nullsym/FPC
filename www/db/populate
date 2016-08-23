@@ -1,0 +1,208 @@
+#!/usr/bin/env python
+
+import requests
+import re, datetime
+import sqlite3
+from lxml import html
+# Import FPL code
+import sys, os
+sys.path.append(os.path.join(os.path.dirname(__file__), '../../', 'lib'))
+import fpc
+from fpc import file_exists
+
+###############
+# Global vars #
+###############
+HOURS = list(range(0, 24))
+TOTAL_MONEY = 0
+TOTAL_KWH = 0
+MONEY = None
+KWH = None
+TEMPERATURE = None
+DATE = None
+COMMENTS = None
+DB_NAME = fpc.DIR_NAME + "/www/db/" + fpc.YEAR + ".db"
+
+#############
+# Functions #
+#############
+def db_create():
+    if not (os.path.isfile(DB_NAME)):
+        print("[INFO] Creating the database")
+        conn = sqlite3.connect(DB_NAME)
+        c = conn.cursor()
+        c.execute('''CREATE TABLE FPL
+                (date text, hours tinyint, money real, kwh real, temp tinyint)''')
+        c.execute('''CREATE TABLE SUMMARY
+                (date text, money real, kwh real, comments text)''')
+        conn.commit()
+        conn.close()
+
+def db_insert():
+    global TOTAL_MONEY, TOTAL_KWH
+    # The format DATE has is: Tuesday Jul. 19, 2016
+    # Week is defined as: Sunday, Monday, ..., Saturday
+    date = datetime.datetime.strptime(DATE, "%A %b. %d, %Y")
+    week_num_and_day = date.strftime("%U-%w")
+    conn = sqlite3.connect(DB_NAME)
+    c = conn.cursor()
+
+    # Do not INSERT data for a day that already has entries in the DB
+    c.execute("SELECT rowid FROM FPL WHERE date = (?)", (week_num_and_day,))
+    if c.fetchone() is None:
+        print("Inserting the information to the DB\n\n")
+        # A tuple is expected by executemany
+        my_data = []
+        my_data2 = [(week_num_and_day, TOTAL_MONEY, TOTAL_KWH, COMMENTS)]
+        for i in range(0, 24):
+            my_data.append((week_num_and_day, HOURS[i],
+                MONEY[i].attrib['value'],
+                KWH[i].attrib['value'], TEMPERATURE[i].attrib['value']))
+        c.executemany('INSERT INTO FPL VALUES (?, ?, ?, ?, ?)', my_data)
+        c.executemany('INSERT INTO SUMMARY VALUES (?, ?, ?, ?)', my_data2)
+    else:
+        print("The information for this date is already in the database.\n\n")
+
+    TOTAL_MONEY = 0
+    TOTAL_KWH = 0
+    conn.commit()
+    conn.close()
+
+def data_fetch(xml_byte, xml_text):
+    global MONEY, KWH, TEMPERATURE, DATE
+    global TOTAL_MONEY, TOTAL_KWH
+    tree = html.fromstring(xml_byte)
+
+    # The XML has 4 databsets: Money, Temp, kWh, Temp.
+    # In that order. The Temp dataset is repeated.
+    datasets = tree.xpath("//dataset")
+    try:
+        MONEY = datasets[0]
+        TEMPERATURE = datasets[1]
+        KWH = datasets[2]
+    except IndexError:
+        return(False)
+
+    # FPL returns an empty string as the value if we haven't used electricity
+    # But it charges 1 cent for those hours, so we only need to worry about kWh.
+    for i in range(0, 24):
+        if KWH[i].attrib['value'] == "":
+            KWH[i].attrib['value'] = "0"
+
+    # Perform a non-greedy search since the string is repeated
+    # two times throughout the document
+    find_match = re.compile('Usage for: </b>(.*?). &')
+    DATE = find_match.search(xml_text)
+    DATE = DATE.group(1)
+
+    # Get the total money and kwh from that day
+    for i in range(0, 24):
+        TOTAL_KWH += float(KWH[i].attrib['value'])
+        TOTAL_MONEY += float(MONEY[i].attrib['value'])
+    TOTAL_KWH = round(TOTAL_KWH, 2)
+    TOTAL_MONEY = round(TOTAL_MONEY, 2)
+
+    return(True)
+
+
+def data_print():
+    print(DATE)
+    # Sometimes the XML does not have temperature information
+    if bool(TEMPERATURE[0].attrib):
+        print("+-----------------------------------+")
+        print("| Hour  | Money   | kWh   | Temp    |")
+        print("+-----------------------------------+")
+        for i in range(0, 24):
+            print("| {:5} | ${:6} | {:6} | {:6} |".format(HOURS[i],
+                MONEY[i].attrib['value'],
+                KWH[i].attrib['value'],
+                TEMPERATURE[i].attrib['value']))
+        print("+-----------------------------------+")
+
+    else:
+        sys.exit("The XML file didn't give us the needed temperatures")
+
+def crawl_website(dry_run, days_range):
+    # Create the session object
+    session_requests = requests.session()
+    # Fetch needed cookies
+    result = fpc.get_session("daily")
+    # Fetch needed data for our payload
+    find_match = re.compile('var premiseNumber = (.*);')
+    premise_number = find_match.findall(result.text)[0][1:-1]
+    find_match = re.compile('var certifiedDate = (.*);')
+    certified_date = find_match.findall(result.text)[0][1:-1]
+    certified_date = datetime.datetime.strptime(certified_date, "%b %d, %Y")
+    certified_date = certified_date.strftime("%Y/%m/%d")
+    url = "https://app.fpl.com/wps/PA_ESFPortalWeb/getHourlyConsumption.do"
+
+    # Start with 1 because the server won't have information for the current day (0)
+    for i in range(days_range[0], days_range[1]):
+        start_date = datetime.date.today() - datetime.timedelta(i)
+        yday = start_date.timetuple().tm_yday
+        start_date = str(start_date) + "T00:00:00"
+
+        payload = {'tempType': 'max',
+                'ecmonthHumType': 'NoHum',
+                'viewType': 'dollar',
+                'userType': 'EXT',
+                'ecHasMoveInRate': 'false',
+                'isResidential': 'true',
+                'isTouUser': 'false',
+                'showGroupData': 'false',
+                'isNetMeter': 'false',
+                'ecShowMinTab': 'true',
+                'isMultiMeter': 'false',
+                'accountType': 'ELE',
+                'zipCode': fpc.settings("zip"),
+                'accountNumber': fpc.settings("account_number"),
+                'premiseNumber': premise_number,
+                'certifiedDate': certified_date,
+                'startDate' : start_date,
+                'endDate': start_date
+                }
+
+        result = session_requests.post(url, data=payload)
+
+        if data_fetch(result.content, result.text):
+            if dry_run:
+                data_print()
+            else:
+                data_print()
+                db_insert()
+        else:
+            print("Could not retrieve info for day:", i)
+            print("-----------------------------------\n\n")
+
+        # Stop execution when we reach day 0
+        #TODO: Instead of breaking the loop let's change the DB to <year - 1>.db
+        if str(yday) == "1":
+            print("We reached the end of January 1st.")
+            print("Code to change years still needs to be written.")
+            break
+
+########
+# Main #
+########
+if __name__ == '__main__':
+    import argparse
+
+    parser = argparse.ArgumentParser(description="Populate the database with our daily electricity usage")
+    parser.add_argument("-d", "--dry-run", action="store_true",
+            help="Do not commit the changes to the databse")
+    parser.add_argument("-r", "--range", metavar='N', type=int, nargs=2,
+            default=[1, 2], help="Range of days to fetch")
+    args = parser.parse_args()
+    # print(args)
+
+    # Sanity check: r[0] HAS to be less than r[1]
+    if args.dry_run:
+        print("Performing a dry run, there will be NO changes to the DB.")
+    else:
+        print("As we are not running in dry-run mode changes to the DB will be saved.")
+
+    if (args.range[0] >= args.range[1]):
+        sys.exit("The first arg to the range has to be less than the second arg")
+    else:
+        db_create()
+        crawl_website(args.dry_run, args.range)

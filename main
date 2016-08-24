@@ -56,11 +56,13 @@ def yearly_overview():
     result = fpc.get_session("yearly")
     result = result.json()
     for i in range(0, len(result['data'])):
-        print("{} kWh used on {} {}. ${:6} ({} °F)".format(str(result['data'][i]['kwhUsed']),
+        print("{} kWh used on {} {}. ${:6} ({} F)".format(
+            result['data'][i]['kwhUsed'],
             result['data'][i]['billingMonth'],
             result['data'][i]['billingYear'],
-            str(result['data'][i]['billingCharge']),
-            str(int(result['data'][i]['temperature']))))
+            result['data'][i]['billingCharge'],
+            result['data'][i]['temperature']
+            ))
 
 
 def monthly_overview():

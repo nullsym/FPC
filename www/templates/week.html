@@ -54,6 +54,13 @@
             {% endfor %}
           </tbody>
       </table>
+      <div class="div-container-footer">
+        {% if summary[loop.index - 1][0][3] == None %}
+          No comment
+        {% else %}
+          {{ summary[loop.index - 1][0][3] }}
+        {% endif %}
+      </div>
     </div>
     {% endfor %}
 

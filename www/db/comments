@@ -6,25 +6,35 @@ import datetime, time
 
 DIR_NAME = os.path.split(os.path.abspath(sys.argv[0]))[0]
 
-def db_comment_add(date, comment):
-    year = date.strftime("%Y")
-    week_num = date.strftime("%U")
-    week_day = date.strftime("%w") # Change to %u (starts with monday)
+def fetch_input():
+    date = input("\nEnter the date: ")
+    comment = input("Enter the comment: ")
 
-    db_name = DIR_NAME + "/" + str(year) + ".db"
-    week_num_and_day = week_num + "-" + week_day
+    try:
+        if "/" in date:
+            date = datetime.datetime.strptime(date, "%d/%m/%Y")
+        elif "-" in date:
+            date = datetime.datetime.strptime(date, "%U-%w %Y")
+        if comment is "":
+            sys.exit("[ERROR] The comment was empty")
+    except ValueError:
+        sys.exit("[ERROR] The format for the date was wrong")
 
+    return date.strftime("%U-%w"), date.strftime("%Y"), comment
+
+
+def db_comment_add(date, year, comment):
     # Format of the SUMMARY table:
     # ('32-5', 0.24, 0.0, None)
-    conn = sqlite3.connect(db_name)
+    conn = sqlite3.connect(DIR_NAME + "/" + str(year) + ".db")
     c = conn.cursor()
 
     # Check if an entry for the day exists
-    c.execute('SELECT rowid FROM SUMMARY WHERE date = (?)', (week_num_and_day,))
+    c.execute('SELECT rowid FROM SUMMARY WHERE date = (?)', (date,))
     if c.fetchone() is None:
         sys.exit("[ERROR] No entry found for this day on the DB")
     else:
-        c.execute('UPDATE SUMMARY SET comments = (?) WHERE date = (?)', (comment, week_num_and_day))
+        c.execute('UPDATE SUMMARY SET comments = (?) WHERE date = (?)', (comment, date))
 
     conn.commit()
     conn.close()
@@ -33,42 +43,23 @@ def db_comment_add(date, comment):
 # Main #
 ########
 if __name__ == '__main__':
-    import argparse
+    print("The date is: " + time.strftime("%d/%m/%Y"))
+    print("The date is: " + time.strftime("%U-%w-%Y")) #0 is sunday 6 is saturday
+    print("The date is: " + time.strftime("%U-%u-%Y")) #1 is monday 7 is sunday
 
-    parser = argparse.ArgumentParser(description="Add comments to the database")
-    group = parser.add_mutually_exclusive_group()
+    date = input("\nEnter the date: ")
+    comment = input("Enter the comment: ")
 
-    group.add_argument("-w", "--week", action="store_true",
-            help="Use the weekNumber-weekDay yyyy format")
-    group.add_argument("-d", "--date", action="store_true",
-            help="Use the dd/mm/yyyy format")
-    # group.add_argument("--delete", action="store_true",
-    #         help="Delete a comment")
-    parser.add_argument("-r", "--range", action="store_true",
-            help="Mode for adding comments to multiple days")
+    try:
+        if "/" in date:
+            date = datetime.datetime.strptime(date, "%d/%m/%Y")
+        elif "-" in date:
+            date = datetime.datetime.strptime(date, "%U-%w-%Y")
+        if comment is "":
+            sys.exit("[ERROR] The comment was empty")
+    except ValueError:
+        sys.exit("[ERROR] The format for the date was wrong")
 
-
-    args = parser.parse_args()
-    if args.week:
-        if args.range:
-            pass
-        else:
-            print("The date is: " + time.strftime("%U-%w %Y"))
-
-    elif args.date:
-        if args.range:
-            pass
-        else:
-            print("The date is: " + time.strftime("%d/%m/%Y"))
-            date = input("\nEnter the date: ")
-            comment = input("Enter the comment: ")
-            try:
-                date = datetime.datetime.strptime(date, "%d/%m/%Y")
-                if comment is not "":
-                    db_comment_add(date, comment)
-                else:
-                    sys.exit("[ERROR] The comment was empty")
-            except ValueError:
-                sys.exit("[ERROR] The format for the date was wrong")
-    else:
-        print(parser.parse_args(['--help']))
+    year = date.strftime("%Y")
+    date = date.strftime("%U-%w")
+    db_comment_add(date, year, comment)

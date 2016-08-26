@@ -31,11 +31,24 @@ header h1 {
   background-color: #536e8e;
 }
 
+.div-container-footer {
+  width: 100%;
+  padding: 10px 0px 10px 0px;
+  text-align: center;
+  border-width: 1px 0px 0px 0px;
+  border-style: solid;
+  border-color: black;
+  /* background-color: #b3ccff; */
+  /* background-color: #779ECB; */
+  /* background-color: #536e8e; */
+  /* font-size: 0.7em; */
+}
+
 #div-day {
+  padding: 5px 0px 5px 0px;
   text-align: center;
   font-size: 1.2em;
   font-weight: bold;
-  padding: 5px 0px 5px 0px;
 }
 
 .div-table {
@@ -62,7 +75,9 @@ header h1 {
 ****************/
 table {
     border-collapse: collapse;
-    border: 1px solid #2e8cff;
+    /* border-width: 1px 1px 0px 1px; */
+    /* border-style: solid; */
+    /* border-color: #2e8cff; */
     width: 300px;
 }
 

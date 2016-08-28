@@ -85,15 +85,19 @@ def week(year, week_number):
     if week_number == -1:
         return render_template('error.html')
 
-    # List of list of tuples (the DB returns a list of tuples for the info of one day)
+    # List of list of tuples.
+    # The outter list represents a week
+    # The inner loop represents a day of the week
+    # The tuple represents the hours of that day
     week = []
+    # List of tuples
     day_summary = []
     for day in range(1, 8):
         week_day = str(week_number) + "-" + str(day)
         # Only append data to week when we find an entry for that day in the DB
         if g.db.execute("SELECT rowid FROM FPL WHERE date=?", (week_day,)).fetchone():
             week.append(g.db.execute("SELECT * FROM FPL WHERE date=?", (week_day,)).fetchall())
-            day_summary.append(g.db.execute("SELECT * FROM SUMMARY WHERE date=?", (week_day,)).fetchall())
+            day_summary.append(g.db.execute("SELECT * FROM SUMMARY WHERE date=?", (week_day,)).fetchall()[0])
 
     return render_template('week.html',
             summary         = day_summary,

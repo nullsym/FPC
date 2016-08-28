@@ -40,9 +40,14 @@ def db_create():
 
 def db_insert():
     global TOTAL_MONEY, TOTAL_KWH
-    # The format DATE has is: Tuesday Jul. 19, 2016
-    # Week is defined as: Sunday, Monday, ..., Saturday
-    date = datetime.datetime.strptime(DATE, "%A %b. %d, %Y")
+    # It seems FPL uses at least these two formats for dates:
+    # Tuesday May  31, 2016
+    # Wednesday Jun. 01, 2016
+    if "." in DATE:
+        date = datetime.datetime.strptime(DATE, "%A %b. %d, %Y")
+    else:
+        date = datetime.datetime.strptime(DATE, "%A %b %d, %Y")
+
     date2 = date.strftime("%a %b %d")
     week_num_and_day = date.strftime("%W-%u")
     conn = sqlite3.connect(DB_NAME)

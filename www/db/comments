@@ -44,8 +44,7 @@ def db_comment_add(date, year, comment):
 ########
 if __name__ == '__main__':
     print("The date is: " + time.strftime("%d/%m/%Y"))
-    print("The date is: " + time.strftime("%U-%w-%Y")) #0 is sunday 6 is saturday
-    print("The date is: " + time.strftime("%W-%u-%Y")) #1 is monday 7 is sunday
+    print("The date is: " + time.strftime("%W-%u-%Y"))
 
     date = input("\nEnter the date: ")
     comment = input("Enter the comment: ")

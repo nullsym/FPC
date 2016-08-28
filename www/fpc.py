@@ -13,9 +13,8 @@ import os
 ###############
 app = Flask(__name__)
 
-WEEK_STR = ["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"]
 THRESHOLD = 0.12
-WEEK = time.strftime("%U")
+WEEK = time.strftime("%W")
 YEAR = time.strftime("%Y")
 
 ####################
@@ -86,12 +85,11 @@ def week(year, week_number):
     if week_number == -1:
         return render_template('error.html')
 
-
-    week = [] # List of tuples (the DB returns a tuple for the info of one day)
+    # List of list of tuples (the DB returns a list of tuples for the info of one day)
+    week = []
     day_summary = []
-    for day in range(0, 7):
+    for day in range(1, 8):
         week_day = str(week_number) + "-" + str(day)
-
         # Only append data to week when we find an entry for that day in the DB
         if g.db.execute("SELECT rowid FROM FPL WHERE date=?", (week_day,)).fetchone():
             week.append(g.db.execute("SELECT * FROM FPL WHERE date=?", (week_day,)).fetchall())
@@ -102,6 +100,5 @@ def week(year, week_number):
             year            = year,
             week            = week,
             week_number     = int(week_number),
-            week_str        = WEEK_STR,
             hours_in_a_day  = list(range(0, 24)),
             threshold       = THRESHOLD)

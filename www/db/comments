@@ -14,13 +14,13 @@ def fetch_input():
         if "/" in date:
             date = datetime.datetime.strptime(date, "%d/%m/%Y")
         elif "-" in date:
-            date = datetime.datetime.strptime(date, "%U-%w %Y")
+            date = datetime.datetime.strptime(date, "%U-%u %Y")
         if comment is "":
             sys.exit("[ERROR] The comment was empty")
     except ValueError:
         sys.exit("[ERROR] The format for the date was wrong")
 
-    return date.strftime("%U-%w"), date.strftime("%Y"), comment
+    return date.strftime("%U-%u"), date.strftime("%Y"), comment
 
 
 def db_comment_add(date, year, comment):
@@ -45,7 +45,7 @@ def db_comment_add(date, year, comment):
 if __name__ == '__main__':
     print("The date is: " + time.strftime("%d/%m/%Y"))
     print("The date is: " + time.strftime("%U-%w-%Y")) #0 is sunday 6 is saturday
-    print("The date is: " + time.strftime("%U-%u-%Y")) #1 is monday 7 is sunday
+    print("The date is: " + time.strftime("%W-%u-%Y")) #1 is monday 7 is sunday
 
     date = input("\nEnter the date: ")
     comment = input("Enter the comment: ")
@@ -54,12 +54,12 @@ if __name__ == '__main__':
         if "/" in date:
             date = datetime.datetime.strptime(date, "%d/%m/%Y")
         elif "-" in date:
-            date = datetime.datetime.strptime(date, "%U-%w-%Y")
+            date = datetime.datetime.strptime(date, "%W-%u-%Y")
         if comment is "":
             sys.exit("[ERROR] The comment was empty")
     except ValueError:
         sys.exit("[ERROR] The format for the date was wrong")
 
     year = date.strftime("%Y")
-    date = date.strftime("%U-%w")
+    date = date.strftime("%W-%u")
     db_comment_add(date, year, comment)

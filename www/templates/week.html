@@ -17,14 +17,14 @@
     <div class="div-container">
       <div class="div-container-header">
         <div id="div-day">
-          {{ week_str[loop.index - 1] }}
+          {{ summary[loop.index - 1][0][1] }}
         </div>
         <div class="div-table">
           <div id="div-table-money">
-            Money: {{ summary[loop.index - 1][0][1] }}
+            Money: {{ summary[loop.index - 1][0][2] }}
           </div>
           <div id="div-table-kwh">
-            kWh: {{ summary[loop.index - 1][0][2] }}
+            kWh: {{ summary[loop.index - 1][0][3] }}
           </div>
         </div>
       </div>
@@ -55,10 +55,10 @@
           </tbody>
       </table>
       <div class="div-container-footer">
-        {% if summary[loop.index - 1][0][3] == None %}
+        {% if summary[loop.index - 1][0][4] == None %}
           No comment
         {% else %}
-          {{ summary[loop.index - 1][0][3] }}
+          {{ summary[loop.index - 1][0][4] }}
         {% endif %}
       </div>
     </div>

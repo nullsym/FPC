@@ -34,7 +34,7 @@ def db_create():
         c.execute('''CREATE TABLE FPL
                 (date text, hours tinyint, money real, kwh real, temp tinyint)''')
         c.execute('''CREATE TABLE SUMMARY
-                (date text, money real, kwh real, comments text)''')
+                (date text, dateprnt text, money real, kwh real, comments text)''')
         conn.commit()
         conn.close()
 
@@ -43,7 +43,8 @@ def db_insert():
     # The format DATE has is: Tuesday Jul. 19, 2016
     # Week is defined as: Sunday, Monday, ..., Saturday
     date = datetime.datetime.strptime(DATE, "%A %b. %d, %Y")
-    week_num_and_day = date.strftime("%U-%w")
+    date2 = date.strftime("%a %b %d")
+    week_num_and_day = date.strftime("%W-%u")
     conn = sqlite3.connect(DB_NAME)
     c = conn.cursor()
 
@@ -53,13 +54,13 @@ def db_insert():
         print("Inserting the information to the DB\n\n")
         # A tuple is expected by executemany
         my_data = []
-        my_data2 = [(week_num_and_day, TOTAL_MONEY, TOTAL_KWH, COMMENTS)]
+        my_data2 = [(week_num_and_day, date2, TOTAL_MONEY, TOTAL_KWH, COMMENTS)]
         for i in range(0, 24):
             my_data.append((week_num_and_day, HOURS[i],
                 MONEY[i].attrib['value'],
                 KWH[i].attrib['value'], TEMPERATURE[i].attrib['value']))
         c.executemany('INSERT INTO FPL VALUES (?, ?, ?, ?, ?)', my_data)
-        c.executemany('INSERT INTO SUMMARY VALUES (?, ?, ?, ?)', my_data2)
+        c.executemany('INSERT INTO SUMMARY VALUES (?, ?, ?, ?, ?)', my_data2)
     else:
         print("The information for this date is already in the database.\n\n")
 

@@ -3,11 +3,14 @@ Florida Power Crawler
 
 Florida Power Crawler is an application that logs on your behalf to www.fpl.com to retrieve useful information.
 
-There are three main programs:
+There are two main programs:
 
 * main
-* www/db/populate
 * www/fpc.py
+  * www/db/comments
+  * www/db/delete
+  * www/db/populate
+  * www/db/query
 
 Main
 ----
@@ -46,6 +49,33 @@ user in [dev/projects/FPC] # ./main -y
 user in [dev/projects/FPC] #
 ```
 
+FPC.py
+------
+This is a website that makes use of the databases found on `db/<year>.db` and presents the information for a given week on a single page. Tables are used to present the information and the data on the columns can be sorted by clicking on the arrows.
+
+<img src="https://cloud.githubusercontent.com/assets/1633888/17792930/d54612b8-6571-11e6-8ea8-03f0dda05515.png" alt="FPC Screenshot">
+
+Database Schema
+------------------
+
+```
++----------------------- File 2016.db -------------------+
++--------------------------------------------------------+
+|                         Table FPL                      |
+|-----------+---------+----+-----+-----------+-----------|
+| Date      | Hour    | $  | kWh | $ per kWh | Temp      |
+|-----------+---------+----+-----+-----------|-----------|
+| 29-2      | 2       | 34 | 2   |  0.39     | 80        |
+| 29-2      | 3       | 34 | 2   |  1        | 88        |
++--------------------------------------------------------+
+|                       Table SUMMARY        |
+|-------+-----------+------+-----------------|
+| Date  | dateprnt   | $    | kWh  | Comments|
+|--------------------------------------------|
+| 34-1  | Mon Aug 22 | 2.01 | 13   | None    |
++--------------------------------------------+
+
+```
 
 Populate
 --------
@@ -93,49 +123,6 @@ The information for this date is already in the database.
 user in [FPC/www/db] #
 ```
 
-FPC.py
-------
-This is a website that makes use of the databases found on `db/<year>.db` and presents the information for a given week on a single page. Tables are used to present the information and the data on the columns can be sorted by clicking on the arrows.
-
-<img src="https://cloud.githubusercontent.com/assets/1633888/17792930/d54612b8-6571-11e6-8ea8-03f0dda05515.png" alt="FPC Screenshot">
-
-Database Schema
-------------------
-
-```
-+----------------- File 2016.db -------------+
-+--------------------------------------------+
-|                   Table FPL                |
-|-----------+---------+----+-----+-----------|
-| Date      | Hour    | $  | kWh | Temp      |
-|-----------+---------+----+-----+-----------|
-| 29-2      | 2       | 34 | 2   | 80        |
-| 29-2      | 3       | 34 | 2   | 88        |
-+--------------------------------------------+
-|                   Table SUMMARY            |
-|-------+-----------+------+-----------------|
-| Date  | dateprnt   | $    | kWh  | Comments|
-|--------------------------------------------|
-| 34-1  | Mon Aug 22 | 2.01 | 13   | None    |
-+--------------------------------------------+
-
-+----------------- File 2015.db -------------+
-+--------------------------------------------+
-|                   Table FPL                |
-|-----------+---------+----+-----+-----------|
-| Date      | Hour    | $  | kWh | Temp      |
-|-----------+---------+----+-----+-----------|
-| 29-2      | 2       | 34 | 2   | 80        |
-| 29-2      | 3       | 34 | 2   | 88        |
-+--------------------------------------------+
-|                   Table SUMMARY            |
-|-------+-----------+------+-----------------|
-| Date  | dateprnt   | $    | kWh  | Comments|
-|--------------------------------------------|
-| 34-1  | Mon Aug 22 | 2.01 | 13   | None    |
-+--------------------------------------------+
-```
-
 Crontab example
 ---------------
 
@@ -151,3 +138,16 @@ To learn more about FPL check the following URLs
 * https://www.fpl.com/rates.html
 * https://www.fpl.com/rates/time-of-use.html
 * https://www.fpl.com/business/pdf/bill-charges.pdf
+
+
+To-do list
+------------------
+
+* Add what to do (lib/fpc.py) when the user hasn't configured settings.ini properly
+* Fix the header and footer on the website
+* Fix www/db/populate so it can populate data for previous years
+* Allow adding comments from the website
+* Add a calculator
+* Add unit tests for lib/fpc.py
+* Add column in website that specifies the cost per kWh
+* Create a snap package

@@ -13,7 +13,6 @@
 import os, sys
 import configparser
 import requests
-
 # For YEAR and WEEK
 import time
 
@@ -56,10 +55,6 @@ def settings(request):
             return config['Auth']['account_number']
         elif request == "zip":
             return config['Auth']['zip_code']
-
-        # [Misc]
-        elif request == "threshold":
-            return config['Misc']['threshold']
 
         # [Pushover]
         elif request == "po_token":

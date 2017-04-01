@@ -20,10 +20,10 @@ YEAR = time.strftime("%Y")
 ####################
 # Helper functions #
 ####################
-def until_week_not_empty(week_number):
+def until_week_not_empty(year, week_number):
     while week_number > -1:
-        query_str = str(week_number) + "-%"
-        c = g.db.execute("SELECT rowid FROM FPL WHERE date LIKE (?)", (query_str,)).fetchone()
+        query_str = str(year) + "-" + str(week_number) + "-%"
+        c = g.db.execute("SELECT rowid FROM FPC WHERE date LIKE (?)", (query_str,)).fetchone()
 
         if c is not None:
             break
@@ -67,21 +67,22 @@ def error():
 def index():
     return redirect('/week/' + YEAR + '/' + str(WEEK))
 
-@app.route('/week/<string:year>/<int:week_number>')
+@app.route('/week/<int:year>/<int:week_number>')
 def week(year, week_number):
     # Open the DB
-    if file_exists("db/" + year + ".db"):
-        g.db = connect_db("db/" + year + ".db")
+    if file_exists("db/data.db"):
+        g.db = connect_db("db/data.db")
     else:
         return render_template('error.html')
     # The query to the DB returns a tuple for each hour of the day. E.g.
-    # ('29-0', 0, 0.01, 0.31, 78)
-    # 29-0 -> The first day of the week 29
+    # ('2016-29-0', 0, 0.01, 0.31, 31, 78)
+    # 29-0 -> The first day of week 29 of 2016
     # 0    -> Hour 0:00 for this day
     # 0.01 -> The money we were charged
     # 0.31 -> kWh
+    # 31   -> cents per kWh
     # 78   -> The average temperature
-    week_number = until_week_not_empty(week_number)
+    week_number = until_week_not_empty(year, week_number)
     if week_number == -1:
         return render_template('error.html')
 
@@ -93,10 +94,10 @@ def week(year, week_number):
     # List of tuples
     day_summary = []
     for day in range(1, 8):
-        week_day = str(week_number) + "-" + str(day)
+        week_day = str(year) + "-" + str(week_number) + "-" + str(day)
         # Only append data to week when we find an entry for that day in the DB
-        if g.db.execute("SELECT rowid FROM FPL WHERE date=?", (week_day,)).fetchone():
-            week.append(g.db.execute("SELECT * FROM FPL WHERE date=?", (week_day,)).fetchall())
+        if g.db.execute("SELECT rowid FROM FPC WHERE date=?", (week_day,)).fetchone():
+            week.append(g.db.execute("SELECT * FROM FPC WHERE date=?", (week_day,)).fetchall())
             day_summary.append(g.db.execute("SELECT * FROM SUMMARY WHERE date=?", (week_day,)).fetchall()[0])
 
     return render_template('week.html',

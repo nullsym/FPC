@@ -9,7 +9,8 @@ header {
     margin: 0 auto;
     padding-bottom: 100px;
     border: 1px solid #000000;
-    background: #3758b7 url("header.jpg") no-repeat left top;
+    background: url("header.jpg");
+    background-size: cover;
 }
 
 header h1 {
@@ -38,8 +39,8 @@ header h1 {
   border-width: 1px 0px 0px 0px;
   border-style: solid;
   border-color: black;
+  background-color: #779ECB;
   /* background-color: #b3ccff; */
-  /* background-color: #779ECB; */
   /* background-color: #536e8e; */
   /* font-size: 0.7em; */
 }

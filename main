@@ -108,7 +108,9 @@ if __name__ == '__main__':
     parser.add_argument("-m", "--monthly", action="store_true",
             help="Gives you an overview of your current billing cycle")
     parser.add_argument("-t", "--threshold", type=float, metavar='f',
-            help="Passing this arguments enables notifications. A value of zero will always send notifications. A value of 1 only sends notifications if our daily consumption exceeded 1USD. Works only with --monthly")
+            help="Passing this arguments enables notifications. A value of zero will always send notifications.\
+                    A value of 1 only sends notifications if our daily consumption exceeded 1USD.\
+                    Works only with --monthly.")
     args = parser.parse_args()
 
     if args.yearly:

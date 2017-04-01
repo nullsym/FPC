@@ -59,16 +59,16 @@ Database Schema
 ------------------
 
 ```
-+----------------------- File 2016.db -------------------+
++----------------------- File data.db -------------------+
 +--------------------------------------------------------+
-|                         Table FPL                      |
+|                         Table FPC                      |
 |-----------+---------+----+-----+-----------+-----------|
 | Date      | Hour    | $  | kWh | $ per kWh | Temp      |
 |-----------+---------+----+-----+-----------|-----------|
 | 29-2      | 2       | 34 | 2   |  0.39     | 80        |
 | 29-2      | 3       | 34 | 2   |  1        | 88        |
 +--------------------------------------------------------+
-|                       Table SUMMARY        |
+|             Table SUMMARY                  |
 |-------+-----------+------+-----------------|
 | Date  | dateprnt   | $    | kWh  | Comments|
 |--------------------------------------------|
@@ -142,12 +142,9 @@ To learn more about FPL check the following URLs
 
 To-do list
 ------------------
+* Add unit tests for lib/fpc.py
+* Add a calculator
+* Fix the header and footer on the website
 
 * Add what to do (lib/fpc.py) when the user hasn't configured settings.ini properly
-* Fix the header and footer on the website
-* Fix www/db/populate so it can populate data for previous years
 * Allow adding comments from the website
-* Add a calculator
-* Add unit tests for lib/fpc.py
-* Add column in website that specifies the cost per kWh
-* Create a snap package

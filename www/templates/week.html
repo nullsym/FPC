@@ -35,21 +35,22 @@
                 <th>Temp</th>
                 <th>Dollars</th>
                 <th>kWh</th>
+                <th>kWh$</th>
             </tr>
           </thead>
           <tbody>
             {% for hour in hours_in_a_day %}
             <tr>
-                <td> {{ day[hour][1] }} </td>
-                <td> {{ day[hour][4] }} °F </td>
-
-                {% if day[hour][2] >= threshold %}
-                <td id="threshold"> ${{ day[hour][2] }} </td>
-                <td id="threshold"> {{ day[hour][3] }} </td>
-                {% else %}
-                <td> ${{ day[hour][2] }} </td>
-                <td> {{ day[hour][3] }} </td>
-                {% endif %}
+              <td> {{ day[hour][1] }} </td> <!-- Hour -->
+              <td> {{ day[hour][5] }} °F </td> <!-- Temperature -->
+              {% if day[hour][2] >= threshold %}
+              <td id="threshold"> ${{ day[hour][2] }} </td> <!-- Dollars -->
+              <td id="threshold"> {{ day[hour][3] }} </td> <!-- kWh -->
+              {% else %}
+              <td> ${{ day[hour][2] }} </td> <!-- Dollars -->
+              <td> {{ day[hour][3] }} </td> <!-- kWh -->
+              {% endif %}
+              <td> {{ day[hour][4] }} </td> <!-- $ per kwh -->
             </tr>
             {% endfor %}
           </tbody>

@@ -12,6 +12,9 @@ import os
 # Global vars #
 ###############
 app = Flask(__name__)
+# Disable whitespace and newline weirdness
+app.jinja_env.trim_blocks = True
+app.jinja_env.lstrip_blocks = True
 
 THRESHOLD = 0.12
 WEEK = time.strftime("%W")
@@ -20,6 +23,7 @@ YEAR = time.strftime("%Y")
 ####################
 # Helper functions #
 ####################
+# Keeps displaying days in the website as long as those days are in the database
 def until_week_not_empty(year, week_number):
     while week_number > -1:
         query_str = str(year) + "-" + str(week_number) + "-%"
@@ -42,30 +46,26 @@ def file_exists(file_name):
     else:
         return False
 
-#############
-# Functions #
-#############
+#######################
+# DB helper funcions  #
+#######################
 def connect_db(db_name):
     """Connects to the specified database"""
     db = sqlite3.connect(db_name)
     return db
 
-####################
-# Webapp Functions #
-####################
 @app.teardown_appcontext
 def close_connection(exception):
     """Closes the database at the end of the request"""
     if hasattr(g, 'db'):
         g.db.close()
 
-@app.route('/error')
-def error():
-    return render_template('error.html')
-
+##################
+#     FPC        #
+##################
 @app.route('/')
 def index():
-    return redirect('/week/' + YEAR + '/' + str(WEEK))
+    return redirect('/week/' + YEAR + '/' + WEEK)
 
 @app.route('/week/<int:year>/<int:week_number>')
 def week(year, week_number):
@@ -73,15 +73,15 @@ def week(year, week_number):
     if file_exists("db/data.db"):
         g.db = connect_db("db/data.db")
     else:
-        return render_template('error.html')
+        return error()
     # The query to the DB returns a tuple for each hour of the day. E.g.
-    # ('2016-29-0', 0, 0.01, 0.31, 31, 78)
+    # ('2016-29-0', 0, 0.12, 0.21, 0.57, 78)
     # 29-0 -> The first day of week 29 of 2016
     # 0    -> Hour 0:00 for this day
-    # 0.01 -> The money we were charged
-    # 0.31 -> kWh
-    # 31   -> cents per kWh
-    # 78   -> The average temperature
+    # 0.12 -> Cost
+    # 0.21 -> kWh
+    # 0.57 -> kWh rate
+    # 78   -> Average temperature
     week_number = until_week_not_empty(year, week_number)
     if week_number == -1:
         return render_template('error.html')
@@ -107,3 +107,21 @@ def week(year, week_number):
             week_number     = int(week_number),
             hours_in_a_day  = list(range(0, 24)),
             threshold       = THRESHOLD)
+
+@app.route('/error')
+def error():
+    return render_template('error.html')
+
+@app.route('/about')
+def about():
+    return render_template('about.html')
+
+@app.route('/yearly')
+def yearly():
+    return render_template('yearly.html')
+
+########
+# Main #
+########
+if __name__ == '__main__':
+    app.run(debug=True)

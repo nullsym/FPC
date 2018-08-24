@@ -23,5 +23,5 @@ if __name__ == "__main__":
 	if len(sys.argv) == 2:
 		pushover(sys.argv[1])
 
-	else:
+    else:
 		sys.exit("Error: Incorrect number of arguments were given.")

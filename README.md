@@ -142,9 +142,8 @@ To learn more about FPL check the following URLs
 
 To-do list
 ------------------
-* Add unit tests for lib/fpc.py
 * Add a calculator
 * Fix the header and footer on the website
-
 * Add what to do (lib/fpc.py) when the user hasn't configured settings.ini properly
 * Allow adding comments from the website
+* Finish --delete for populate

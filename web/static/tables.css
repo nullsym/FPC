@@ -1,50 +1,6 @@
-body {
-    background-color: #f2f2f2;
-    background-repeat: no-repeat;
-}
-
-header {
-    text-align: center;
-    width: 100%;
-    margin: 0 auto;
-    padding-bottom: 100px;
-    border: 1px solid #000000;
-    background: url("header.jpg");
-    background-size: cover;
-}
-
-header h1 {
-    color: #f2f2f2;
-    text-shadow: 2px 2px #000000;
-}
-
-
 /*******
  * DIV *
  *******/
-.div-container {
-  border: 1px solid black;
-  display: inline-block;
-  margin: 10px 0px 0px 0px;
-}
-
-.div-container-header {
-  background-color: #536e8e;
-}
-
-.div-container-footer {
-  width: 100%;
-  padding: 10px 0px 10px 0px;
-  text-align: center;
-  border-width: 1px 0px 0px 0px;
-  border-style: solid;
-  border-color: black;
-  background-color: #779ECB;
-  /* background-color: #b3ccff; */
-  /* background-color: #536e8e; */
-  /* font-size: 0.7em; */
-}
-
 #div-day {
   padding: 5px 0px 5px 0px;
   text-align: center;
@@ -70,6 +26,28 @@ header h1 {
   text-align: right;
 }
 
+.div-container {
+  border: 1px solid black;
+  display: inline-block;
+  margin: 10px 0px 0px 0px;
+}
+
+.div-container-header {
+  background-color: #536e8e;
+}
+
+.div-container-footer {
+  width: 100%;
+  padding: 10px 0px 10px 0px;
+  text-align: center;
+  border-width: 1px 0px 0px 0px;
+  border-style: solid;
+  border-color: black;
+  background-color: #779ECB;
+  /* background-color: #b3ccff; */
+  /* background-color: #536e8e; */
+  /* font-size: 0.7em; */
+}
 
 /****************
 * TABLE styling *
@@ -120,45 +98,4 @@ table.tablesorter thead tr .headerSortUp {
 table.tablesorter thead tr .headerSortDown {
   padding-right: 20px;
   background-image: url(desc.gif);
-}
-
-
-/**********
- * FOOTER *
- * *******/
-footer {
-    background-color: #D0D0D0;
-    padding: 50px 0px 20px 0px;
-    margin: 20px 0px 0px 0px;
-    clear: left;
-    width: 100%;
-    font-size: 2em;
-}
-
-footer a {
-  color: black;
-  text-decoration: none;
-}
-
-footer a:hover {
-  background-color: #D9D9D9;
-  color: #2e8cff;
-}
-
-#prev {
-  /* min-width: 200px; */
-  text-align: center;
-  background-color: #D0D0D0;
-  margin-left: 40px;
-  display: inline;
-  border: 1px solid #000000;
-}
-
-#next {
-  /* min-width: 200px; */
-  text-align: center;
-  background-color: #D0D0D0;
-  margin-right: 40px;
-  float: right;
-  border: 1px solid #000000;
 }

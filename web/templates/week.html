@@ -1,0 +1,69 @@
+{% extends "base.html" %}
+
+{% block head %}
+  <script type="text/javascript" src="/static/js/jquery-latest.js"></script>
+  <script type="text/javascript" src="/static/js/jquery.tablesorter.min.js"></script>
+  <script type="text/javascript" src="/static/js/sort.js"></script>
+  <link rel="stylesheet" type="text/css" href="/static/tables.css">
+{% endblock %}
+
+{% block content %}
+  {% for day in week %}
+    <div class="div-container">
+      <div class="div-container-header">
+        <div id="div-day">
+          {{ summary[loop.index - 1][1] }}
+        </div>
+        <div class="div-table">
+          <div id="div-table-money">
+            Money: {{ summary[loop.index - 1][2] }}
+          </div>
+          <div id="div-table-kwh">
+            kWh: {{ summary[loop.index - 1][3] }}
+          </div>
+        </div>
+      </div>
+      <table id="myTable" class="tablesorter">
+        <thead>
+          <tr>
+            <th>Hour</th>
+            <th>Temp</th>
+            <th>Dollars</th>
+            <th>kWh</th>
+            <th>kWh$</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for hour in hours_in_a_day %}
+          <tr>
+            <td> {{ day[hour][1] }} </td> <!-- Hour -->
+            <td> {{ day[hour][5] }} °F </td> <!-- Temperature -->
+            {% if day[hour][2] >= threshold %}
+            <td id="threshold"> ${{ day[hour][2] }} </td> <!-- Dollars -->
+            <td id="threshold"> {{ '%0.2f' | format(day[hour][3]) }} </td> <!-- kWh -->
+            {% else %}
+            <td> ${{ day[hour][2] }} </td> <!-- Dollars -->
+            <td> {{ '%0.2f' | format(day[hour][3]) }} </td> <!-- kWh -->
+            {% endif %}
+            <td> {{ '%0.2f' | format(day[hour][4]) }} </td> <!-- $ per kwh -->
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+      <div class="div-container-footer">
+        {% if summary[loop.index - 1][4] == None %}
+        No comment
+        {% else %}
+        {{ summary[loop.index - 1][4] }}
+        {% endif %}
+      </div>
+    </div>
+  {% endfor %}
+{% endblock %}
+
+{% block footer %}
+<footer>
+  <a href="/week/{{ year }}/{{ week_number - 1 }}">&laquo; Prev</a>
+  <a href="/week/{{ year }}/{{ week_number + 1 }}">Next &raquo;</a>
+</footer>
+{% endblock %}

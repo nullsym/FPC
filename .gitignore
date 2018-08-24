@@ -1,5 +1,6 @@
 # Ignore personal data
 *data.txt
+*yearly.txt
 *.db
 settings.ini
 

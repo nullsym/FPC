@@ -1,0 +1,23 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <title>Florida Power Crawler</title>
+    <link rel="stylesheet" type="text/css" href="/static/main.css">
+    {% block head %}{% endblock %}
+</head>
+<body>
+    <header>
+        <h1>Florida Power Crawler</h1>
+    </header>
+    <nav>
+      <a href="/">Home</a>
+      <a href="/yearly">Yearly</a>
+      <a style="float:right" href="/about">About</a>
+    </nav>
+    <!-- CONTENT -->
+    {% block content %}{% endblock %}
+    <!-- FOOTER -->
+    {% block footer %}{% endblock %}
+</body>
+</html>

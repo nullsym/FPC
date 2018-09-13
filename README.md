@@ -1,16 +1,12 @@
 Florida Power Crawler
 =====================
 
-Florida Power Crawler is an application that logs on your behalf to www.fpl.com to retrieve useful information.
-
-There are two main programs:
+Florida Power Crawler is an application that crawls fpl.com to retrieve and store useful information.
 
 * main
-* www/fpc.py
-  * www/db/comments
-  * www/db/delete
-  * www/db/populate
-  * www/db/query
+* web/dbpopulate
+* web/fpc
+* web/run
 
 Main
 ----
@@ -65,62 +61,29 @@ Database Schema
 |-----------+---------+----+-----+-----------+-----------|
 | Date      | Hour    | $  | kWh | $ per kWh | Temp      |
 |-----------+---------+----+-----+-----------|-----------|
-| 29-2      | 2       | 34 | 2   |  0.39     | 80        |
-| 29-2      | 3       | 34 | 2   |  1        | 88        |
+| 2018-29-2      | 2       | 34 | 2   |  0.39     | 80   |
+| 2018-29-2      | 3       | 34 | 2   |  1        | 88   |
 +--------------------------------------------------------+
-|             Table SUMMARY                  |
-|-------+-----------+------+-----------------|
-| Date  | dateprnt   | $    | kWh  | Comments|
-|--------------------------------------------|
-| 34-1  | Mon Aug 22 | 2.01 | 13   | None    |
-+--------------------------------------------+
-
+|             Table SUMMARY                        |
+|-------------+-----------+------+-----------------|
+| Date        | dateprnt   | $    | kWh  | Comments|
+|--------------------------------------------------|
+| 2018-34-1   | Mon Aug 22 | 2.01 | 13   | None    |
++--------------------------------------------------+
 ```
 
 Populate
 --------
 This is the script that crawls the data for hourly usage from FPL's website and adds it into the database.
 If the program is run without arguments it gets the data for yesterday (FPL has a delay of 1 day).
-Run `populate -h` or `populate --help` to learn more.
+Run `dbpopulate -h` or `dbpopulate --help` to learn more.
 
 Output example
 
 ```
-user in [FPC/www/db] # ./populate
-As we are not running in dry-run mode changes to the DB will be saved.
-Friday Aug. 19, 2016
-+-----------------------------------+
-| Hour  | Money   | kWh   | Temp    |
-+-----------------------------------+
-|     0 | $0.01   | 0.79   | 75     |
-|     1 | $0.11   | 0.26   | 75     |
-|     2 | $0.01   | 0.17   | 74     |
-|     3 | $0.01   | 0.19   | 74     |
-|     4 | $0.01   | 0.18   | 74     |
-|     5 | $0.01   | 0.16   | 73     |
-|     6 | $0.01   | 0.16   | 75     |
-|     7 | $0.11   | 0.29   | 81     |
-|     8 | $0.01   | 0.2    | 85     |
-|     9 | $0.01   | 0.17   | 88     |
-|    10 | $0.11   | 0.5    | 89     |
-|    11 | $0.01   | 0.16   | 91     |
-|    12 | $0.01   | 0.2    | 92     |
-|    13 | $0.01   | 0.22   | 93     |
-|    14 | $0.01   | 0.22   | 95     |
-|    15 | $0.11   | 0.25   | 94     |
-|    16 | $0.01   | 0.22   | 91     |
-|    17 | $0.01   | 0.26   | 89     |
-|    18 | $0.01   | 0.26   | 86     |
-|    19 | $0.11   | 0.52   | 84     |
-|    20 | $0.01   | 0.23   | 83     |
-|    21 | $0.01   | 0.25   | 83     |
-|    22 | $0.11   | 0.22   | 81     |
-|    23 | $0.01   | 0.25   | 80     |
-+-----------------------------------+
-The information for this date is already in the database.
-
-
-user in [FPC/www/db] #
+user in [projects/FPC/web] # ./dbpopulate
+Inserting 'Wednesday Sep. 12, 2018' into the DB
+user in [projects/FPC/web] #
 ```
 
 Crontab example
@@ -128,7 +91,7 @@ Crontab example
 
 ```
 @daily python /home/user/FPC/main --monthly
-@daily python /home/user/FPC/www/db/populate
+@daily python /home/user/FPC/web/dbpopulate
 ```
 
 Resources
@@ -142,8 +105,6 @@ To learn more about FPL check the following URLs
 
 To-do list
 ------------------
-* Add a calculator
-* Fix the header and footer on the website
 * Add what to do (lib/fpc.py) when the user hasn't configured settings.ini properly
 * Allow adding comments from the website
-* Finish --delete for populate
+* Finish --delete for dbpopulate

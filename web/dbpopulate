@@ -8,7 +8,7 @@ import argparse
 
 # Import FPL code
 import sys, os
-sys.path.append(os.path.join(os.path.dirname(__file__), '../../', 'lib'))
+sys.path.append(os.path.join(os.path.dirname(__file__), '../', 'lib'))
 import fpc
 
 ###############
@@ -24,7 +24,7 @@ TEMPERATURE = None
 DATE = None
 COMMENTS = None
 # Misc
-DB_NAME = fpc.DIR_NAME + "/www/db/data.db"
+DB_NAME = fpc.DIR_NAME + "/web/data.db"
 DB = None
 
 #############
